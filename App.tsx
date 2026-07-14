@@ -15,6 +15,7 @@ import {
 import { AnalysisCard } from "@/components/analysis-card";
 import { HeroCard } from "@/components/hero-card";
 import { TraitListCard } from "@/components/trait-list-card";
+import { getAnalysisModeLabel } from "@/services/analysis-config";
 import { analyzeCatPhoto, ApiError } from "@/services/analyze-cat";
 import { colors } from "@/theme/colors";
 import type { CatReport } from "@/types/cat-report";
@@ -26,6 +27,7 @@ export default function App() {
   const [report, setReport] = useState<CatReport | null>(null);
   const [status, setStatus] = useState("Pick a cat portrait to generate a lineage read.");
   const [isLoading, setIsLoading] = useState(false);
+  const modeLabel = getAnalysisModeLabel();
 
   async function handlePickPhoto() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -137,6 +139,17 @@ export default function App() {
               >
                 Start with a clear face or full-body shot. This starter is wired for mobile-first photo
                 selection and can connect to a real AI backend when you're ready.
+              </Text>
+
+              <Text
+                selectable
+                style={{
+                  color: colors.tertiaryLabel,
+                  lineHeight: 20,
+                  fontSize: 13
+                }}
+              >
+                {modeLabel}
               </Text>
 
               <Pressable
@@ -281,7 +294,8 @@ export default function App() {
                     lineHeight: 22
                   }}
                 >
-                  If no backend URL is configured, the app returns a demo report so the UI is usable on day one.
+                  Local test mode is free and deterministic for demos. When you're ready, you can switch
+                  to a paid backend model without changing the UI contract.
                 </Text>
               </View>
             )}
