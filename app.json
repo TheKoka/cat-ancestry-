@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Cat Ancestry",
+    "slug": "cat-ancestry",
+    "scheme": "catancestry",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.example.catancestry",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Cat Ancestry uses your photo library so you can analyze your cat."
+      }
+    },
+    "android": {
+      "package": "com.example.catancestry"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Cat Ancestry uses your photos so you can analyze your cat."
+        }
+      ]
+    ],
+    "experiments": {}
+  }
+}
