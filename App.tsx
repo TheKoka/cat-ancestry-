@@ -30,30 +30,39 @@ export default function App() {
   const modeLabel = getAnalysisModeLabel();
 
   async function handlePickPhoto() {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      Alert.alert("Photo access needed", "Please allow photo access to analyze a cat image.");
-      return;
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert("Photo access needed", "Please allow photo access to analyze a cat image.");
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        quality: 0.9,
+        allowsEditing: true,
+        aspect: [4, 5]
+      });
+
+      if (result.canceled || !result.assets[0]?.uri) {
+        setStatus("Photo selection canceled.");
+        return;
+      }
+
+      if (process.env.EXPO_OS === "ios") {
+        await Haptics.selectionAsync();
+      }
+
+      setImageUri(result.assets[0].uri);
+      setReport(null);
+      setStatus("Photo ready. Run the ancestry scan when you're set.");
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : "The photo picker could not open.";
+      setStatus(message);
+      Alert.alert("Photo picker failed", message);
     }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.9,
-      allowsEditing: true,
-      aspect: [4, 5]
-    });
-
-    if (result.canceled || !result.assets[0]?.uri) {
-      return;
-    }
-
-    if (process.env.EXPO_OS === "ios") {
-      await Haptics.selectionAsync();
-    }
-
-    setImageUri(result.assets[0].uri);
-    setReport(null);
-    setStatus("Photo ready. Run the ancestry scan when you're set.");
   }
 
   async function handleAnalyze() {
@@ -73,8 +82,18 @@ export default function App() {
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
     } catch (error) {
-      const message =
-        error instanceof ApiError ? error.message : "Something went wrong during analysis.";
+      const message = (() => {
+        if (error instanceof ApiError) {
+          return error.message;
+        }
+
+        if (error instanceof Error && error.message) {
+          return error.message;
+        }
+
+        return "Something went wrong during analysis.";
+      })();
+
       setStatus(message);
       Alert.alert("Analysis failed", message);
     } finally {

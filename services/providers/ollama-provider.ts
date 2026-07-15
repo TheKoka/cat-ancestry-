@@ -90,23 +90,32 @@ export async function analyzeWithOllama(uri: string): Promise<CatReport> {
   const imageDataUrl = await uriToDataUrl(uri);
   const imageBase64 = getBase64FromDataUrl(imageDataUrl);
 
-  const response = await fetch(`${OLLAMA_URL}/api/chat`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: OLLAMA_MODEL,
-      stream: false,
-      messages: [
-        {
-          role: "user",
-          content: OLLAMA_PROMPT,
-          images: [imageBase64]
-        }
-      ]
-    })
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(`${OLLAMA_URL}/api/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: OLLAMA_MODEL,
+        stream: false,
+        messages: [
+          {
+            role: "user",
+            content: OLLAMA_PROMPT,
+            images: [imageBase64]
+          }
+        ]
+      })
+    });
+  } catch {
+    throw new ApiError(
+      `Could not reach Ollama at ${OLLAMA_URL}. Make sure Ollama is running, the URL uses your computer's LAN IP, and your phone can reach that address on the same Wi-Fi.`,
+      0
+    );
+  }
 
   if (!response.ok) {
     throw new ApiError(
